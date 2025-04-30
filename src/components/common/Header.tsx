@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { NavLink } from "react-router";
+import {NavLink, useNavigate} from "react-router";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCode, faBell } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/components/ui/button.tsx";
 
 const Header = () => {
+  const navigate = useNavigate()
+
   const [currentUser, setCurrentUser] = useState({
     id: 1,
     name: "John Doe",
@@ -41,7 +43,7 @@ const Header = () => {
 
   const navLinkClass = ({ isActive }) =>
     `px-3 py-1 rounded-full transition duration-200 ${
-      isActive ? "bg-white text-[#7c3aed]" : "hover:bg-[#4f46e5] text-white"
+      isActive ? "bg-white text-[#7c3aed]" : " text-white hover:bg-white hover:text-[#7c3aed]"
     }`;
 
   return (
@@ -110,8 +112,7 @@ const Header = () => {
             <>
               <button
                 onClick={() => {
-                  setIsAuthModalOpen(true);
-                  setAuthMode("login");
+                  navigate('/login')
                 }}
                 className="px-3 py-1 border border-white text-white rounded-full transition duration-300 hover:-translate-y-0.5 cursor-pointer"
               >
@@ -119,8 +120,7 @@ const Header = () => {
               </button>
               <button
                 onClick={() => {
-                  setIsAuthModalOpen(true);
-                  setAuthMode("signup");
+                  navigate('/sign-up')
                 }}
                 className="px-3 py-1 border border-white text-white rounded-full transition duration-300 hover:-translate-y-0.5 cursor-pointer"
               >

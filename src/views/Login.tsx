@@ -1,36 +1,18 @@
-import { useState } from "react";
+import { Button } from "@/components/ui/button.tsx";
+import LoginForm from "@/components/forms/LoginForm.tsx";
+
+import { useAppDispatch, useAppSelector } from "@/lib/features/hooks.ts";
+import {
+  selectSwitchLogin,
+  switchLogin,
+} from "@/lib/features/login/loginSlice.ts";
 
 const Login = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const dispatch = useAppDispatch();
+  const isLogin = useAppSelector(selectSwitchLogin);
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    name: "",
-    username: "",
-    role: "student",
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isLogin) {
-      console.log("Login data:", {
-        email: formData.email,
-        password: formData.password,
-      });
-      // Login logic here
-    } else {
-      console.log("Signup data:", formData);
-      // Signup logic here
-    }
+  const handleSwitchLogin = (value: string) => {
+    dispatch(switchLogin(value));
   };
 
   return (
@@ -51,7 +33,7 @@ const Login = () => {
               : "Create your account to start collaborating on projects, finding mentors, and building your portfolio."}
           </p>
           <img
-            src="https://popsy.co/static/illustrations/undraw_developer_activity_re_39tg.svg"
+            src="https://illustrations.popsy.co/violet/creative-work.svg"
             alt="Collaboration Illustration"
             className="w-full h-auto max-w-md mx-auto"
           />
@@ -62,13 +44,13 @@ const Login = () => {
           {/* Toggle between Login/Signup */}
           <div className="flex mb-8 bg-gray-100 rounded-full p-1">
             <button
-              onClick={() => setIsLogin(true)}
+              onClick={() => handleSwitchLogin("login")}
               className={`flex-1 py-2 px-4 rounded-full font-medium transition-all duration-300 ease-in-out  ${isLogin ? "login-toggle-active" : "text-gray-600"}`}
             >
               Login
             </button>
             <button
-              onClick={() => setIsLogin(false)}
+              onClick={() => handleSwitchLogin("sign-up")}
               className={`flex-1 py-2 px-4 rounded-full font-medium transition-all duration-300 ease-in-out  ${!isLogin ? "login-toggle-active" : "text-gray-600"}`}
             >
               Sign Up
@@ -85,152 +67,18 @@ const Login = () => {
             </div>
           )}*/}
 
-          <form onSubmit={handleSubmit}>
-            {!isLogin && (
-              <>
-                <div className="mb-4">
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition"
-                    placeholder="John Doe"
-                    required
-                  />
-                </div>
-                <div className="mb-4">
-                  <label
-                    htmlFor="username"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition"
-                    placeholder="johndoe123"
-                    required
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    I am a
-                  </label>
-                  <div className="flex space-x-4">
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="role"
-                        value="student"
-                        checked={formData.role === "student"}
-                        onChange={handleChange}
-                        className="h-4 w-4 text-purple-600 focus:ring-purple-500"
-                      />
-                      <span className="ml-2 text-gray-700">Student</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="role"
-                        value="developer"
-                        checked={formData.role === "developer"}
-                        onChange={handleChange}
-                        className="h-4 w-4 text-purple-600 focus:ring-purple-500"
-                      />
-                      <span className="ml-2 text-gray-700">Developer</span>
-                    </label>
-                  </div>
-                </div>
-              </>
-            )}
-
-            <div className="mb-4">
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition"
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-
-            <div className="mb-6">
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition"
-                placeholder="••••••••"
-                required
-              />
-            </div>
-
-            {isLogin && (
-              <div className="flex items-center justify-between mb-6">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
-                  />
-                  <span className="ml-2 text-sm text-gray-600">
-                    Remember me
-                  </span>
-                </label>
-                <a
-                  href="#"
-                  className="text-sm text-purple-600 hover:text-purple-700"
-                >
-                  Forgot password?
-                </a>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              className="w-full login-gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition"
-            >
-              {isLogin ? "Login" : "Create Account"}
-            </button>
-          </form>
+          <LoginForm />
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-              <button
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-purple-600 font-medium hover:text-purple-700"
+              <Button
+                variant="link"
+                onClick={() => handleSwitchLogin(isLogin ? "sign-up" : "login")}
+                className="p-0 text-purple-600 font-medium hover:text-purple-700"
               >
                 {isLogin ? "Sign up here" : "Login here"}
-              </button>
+              </Button>
             </p>
           </div>
 
@@ -247,24 +95,27 @@ const Login = () => {
             </div>
 
             <div className="mt-6 grid grid-cols-3 gap-3">
-              <button
+              <Button
+                variant="ghost"
                 disabled
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
-                <i className="fab fa-google text-red-500"></i>
-              </button>
-              <button
+                <i className="fab fa-google text-red-500 text-xl"></i>
+              </Button>
+              <Button
+                variant="ghost"
                 disabled
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
-                <i className="fab fa-github text-gray-800"></i>
-              </button>
-              <button
+                <i className="fab fa-github text-gray-800 text-xl"></i>
+              </Button>
+              <Button
+                variant="ghost"
                 disabled
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
-                <i className="fab fa-linkedin text-blue-600"></i>
-              </button>
+                <i className="fab fa-linkedin text-blue-600 text-xl"></i>
+              </Button>
             </div>
           </div>
         </div>
