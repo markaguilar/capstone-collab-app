@@ -1,0 +1,23 @@
+// Mock data
+export const allSkills = [
+  "React",
+  "Node.js",
+  "Python",
+  "Django",
+  "JavaScript",
+  "HTML/CSS",
+  "UI/UX",
+  "Machine Learning",
+  "Data Science",
+  "Flutter",
+  "Swift",
+  "Kotlin",
+  "Java",
+  "C#",
+  "PHP",
+  "Laravel",
+  "Ruby on Rails",
+  "Vue.js",
+  "Angular",
+  "TypeScript",
+];
