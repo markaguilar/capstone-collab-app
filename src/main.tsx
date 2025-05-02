@@ -5,7 +5,7 @@ import App from "./App.tsx";
 
 import { Provider } from "react-redux";
 
-import { store } from "@/lib/features/store";
+import { store } from "@/features/store";
 
 createRoot(document.getElementById("root")!).render(
   <Provider store={store}>

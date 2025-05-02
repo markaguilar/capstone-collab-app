@@ -1,11 +1,8 @@
 import { Button } from "@/components/ui/button.tsx";
 import LoginForm from "@/components/forms/LoginForm.tsx";
 
-import { useAppDispatch, useAppSelector } from "@/lib/features/hooks.ts";
-import {
-  selectSwitchLogin,
-  switchLogin,
-} from "@/lib/features/login/loginSlice.ts";
+import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
+import { selectSwitchLogin, switchLogin } from "@/features/login/loginSlice.ts";
 
 const Login = () => {
   const dispatch = useAppDispatch();
@@ -53,7 +50,7 @@ const Login = () => {
               onClick={() => handleSwitchLogin("sign-up")}
               className={`flex-1 py-2 px-4 rounded-full font-medium transition-all duration-300 ease-in-out  ${!isLogin ? "login-toggle-active" : "text-gray-600"}`}
             >
-              Sign Up
+              Register
             </button>
           </div>
 
@@ -77,7 +74,7 @@ const Login = () => {
                 onClick={() => handleSwitchLogin(isLogin ? "sign-up" : "login")}
                 className="p-0 text-purple-600 font-medium hover:text-purple-700"
               >
-                {isLogin ? "Sign up here" : "Login here"}
+                {isLogin ? "Register here" : "Login here"}
               </Button>
             </p>
           </div>

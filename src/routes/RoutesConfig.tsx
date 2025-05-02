@@ -13,6 +13,7 @@ import MyProposals from "@/views/MyProposals.tsx";
 import Messages from "@/views/Messages.tsx";
 
 import { paths } from "@/routes/Paths.ts";
+import ProtectedRoute from "@/routes/ProtectedRoute.tsx";
 
 const RoutesConfig = [
   {
@@ -36,7 +37,11 @@ const RoutesConfig = [
 
       // Main layout routes
       {
-        element: <MainLayout />,
+        element: (
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        ),
         children: [
           {
             element: <Home />,

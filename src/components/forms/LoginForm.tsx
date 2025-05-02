@@ -1,11 +1,15 @@
-import { SubmitHandler, useForm } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
 import { Label } from "@/components/ui/label.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { useAppSelector } from "@/lib/features/hooks.ts";
-import { selectSwitchLogin } from "@/lib/features/login/loginSlice.ts";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group.tsx";
 import { Button } from "@/components/ui/button.tsx";
+
+import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
+import { selectSwitchLogin } from "@/features/login/loginSlice";
+
+import { login, signUp } from "@/features/auth/authSlice.ts";
+import { useNavigate } from "react-router";
 
 type Inputs = {
   name: string;
@@ -16,10 +20,27 @@ type Inputs = {
 };
 
 const LoginForm = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const isLogin = useAppSelector(selectSwitchLogin);
 
-  const { register, handleSubmit } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  const { register, control, handleSubmit } = useForm<Inputs>();
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    console.log(data);
+    if (!isLogin) {
+      dispatch(signUp(data));
+    } else {
+      const resultAction = await dispatch(login(data));
+
+      if (login.fulfilled.match(resultAction)) {
+        // Navigate to home only if login was successful
+        navigate("/");
+      } else {
+        // Optional: show error feedback
+        console.error("Login failed:", resultAction.payload);
+      }
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -51,30 +72,39 @@ const LoginForm = () => {
             <Label className="block text-sm font-medium text-gray-700 mb-2">
               I am a
             </Label>
-            <RadioGroup className="flex space-x-4">
-              <div className="flex items-center">
-                <RadioGroupItem
-                  id="r1"
-                  value="student"
-                  {...register("role")}
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500"
-                />
-                <Label htmlFor="r1" className="ml-2 mb-0">
-                  Student
-                </Label>
-              </div>
-              <div className="flex items-center">
-                <RadioGroupItem
-                  id="r2"
-                  value="developer"
-                  {...register("role")}
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500"
-                />
-                <Label htmlFor="r2" className="ml-2 mb-0">
-                  Developer
-                </Label>
-              </div>
-            </RadioGroup>
+            <Controller
+              name="role"
+              control={control}
+              defaultValue="student"
+              render={({ field }) => (
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  value={field.value}
+                  className="flex space-x-4"
+                >
+                  <div className="flex items-center">
+                    <RadioGroupItem
+                      id="r1"
+                      value="student"
+                      className="h-4 w-4 text-purple-600 focus:ring-purple-500"
+                    />
+                    <Label htmlFor="r1" className="ml-2 mb-0">
+                      Student
+                    </Label>
+                  </div>
+                  <div className="flex items-center">
+                    <RadioGroupItem
+                      id="r2"
+                      value="developer"
+                      className="h-4 w-4 text-purple-600 focus:ring-purple-500"
+                    />
+                    <Label htmlFor="r2" className="ml-2 mb-0">
+                      Developer
+                    </Label>
+                  </div>
+                </RadioGroup>
+              )}
+            />
           </div>
         </>
       )}
@@ -127,7 +157,7 @@ const LoginForm = () => {
         type="submit"
         className="w-full login-gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition tracking-wider lg:text-base"
       >
-        {isLogin ? "Login" : "Create Account"}
+        {isLogin ? "Login" : "Create Account & Login"}
       </Button>
     </form>
   );
