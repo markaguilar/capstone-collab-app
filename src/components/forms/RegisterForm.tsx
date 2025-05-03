@@ -10,11 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import ErrorMessages from "@/components/ErrorMessages";
 import { Button } from "@/components/ui/button";
 
-import {
-  selectIsLoading,
-  selectIsLoginMode,
-  signUp,
-} from "@/features/auth/authSlice";
+import { selectIsLoading, signUp } from "@/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
 
 import { registerSchemaValidation } from "@/validation/authSchemaValidation";
@@ -27,7 +23,6 @@ const RegisterForm = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const isLoginMode = useAppSelector(selectIsLoginMode);
   const isLoading = useAppSelector(selectIsLoading);
 
   const {
@@ -49,32 +44,8 @@ const RegisterForm = () => {
     if (isSuccess) {
       navigate(ROUTES.HOME);
     } else {
-      console.error(
-        `${isLoginMode ? "Login" : "Signup"} failed:`,
-        result.payload,
-      );
-      // Optional: Show error via toast or UI — already in state.auth.error
+      console.error("Registration failed:", result.payload);
     }
-
-    /*   if (!isLoginMode) {
-      const signUpResult = await dispatch(signUp(data));
-      if (signUp.fulfilled.match(signUpResult)) {
-        // Navigate home only if login was successful
-        navigate(ROUTES.HOME);
-      } else {
-        console.error("Signup failed:", signUpResult.payload);
-      }
-    } else {
-      const resultAction = await dispatch(login(data));
-
-      if (login.fulfilled.match(resultAction)) {
-        // Navigate home only if login was successful
-        navigate(ROUTES.HOME);
-      } else {
-        // Optional: show error feedback
-        console.error("Login failed:", resultAction.payload);
-      }
-    }*/
   };
 
   return (
@@ -178,8 +149,17 @@ const RegisterForm = () => {
             autoComplete="current-password"
           />
           <span
+            role="button"
+            tabIndex={0}
             className="absolute flex items-center inset-y-0 right-3 cursor-pointer"
             onClick={() => setShowPassword(!showPassword)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setShowPassword(!showPassword);
+              }
+            }}
+            aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? (
               <i className="fas fa-eye-slash text-gray-700 text-lg"></i>

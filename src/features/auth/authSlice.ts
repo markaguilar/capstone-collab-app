@@ -84,7 +84,8 @@ export const authSlice = createSlice({
     builder.addCase(signUp.pending, (state) => {
       state.isLoading = true;
     });
-    builder.addCase(signUp.fulfilled, (state) => {
+    builder.addCase(signUp.fulfilled, (state, action) => {
+      state.user = action.payload;
       state.isAuthenticated = true;
       state.status = "succeeded";
       state.error = null;
@@ -122,11 +123,12 @@ export const authSlice = createSlice({
       state.isAuthenticated = true;
       state.status = "succeeded";
     });
-    builder.addCase(me.rejected, (state) => {
+    builder.addCase(me.rejected, (state, action) => {
       state.isLoading = false;
       state.user = null;
       state.isAuthenticated = false;
       state.status = "failed";
+      state.error = action.payload as string;
     });
   },
 });
