@@ -1,10 +1,22 @@
 import axios from "axios";
-import { API_BASE_Url, API_URL, ROUTES } from "@/utils/constant.ts";
+// import { useNavigate } from "react-router";
+
+import { API_BASE_URL, API_URL, ROUTES } from "@/utils/constant";
+
+import { logOut } from "@/features/auth/authSlice";
+
+import { useAppDispatch } from "@/features/hooks";
 
 const API = axios.create({
-  baseURL: `${API_BASE_Url}/v1`, // e.g., http://localhost:5000/v1
+  baseURL: `${API_BASE_URL}/v1`, // e.g., http://localhost:5000/v1
   withCredentials: true, // Required to send cookies
 });
+
+const EXCLUDED_URLS = [
+  API_URL.AUTH_LOGIN,
+  API_URL.AUTH_REGISTER,
+  API_URL.REFRESH_TOKENS,
+];
 
 // Optional: Request interceptor (e.g., add headers, etc.)
 API.interceptors.request.use(
@@ -21,10 +33,18 @@ API.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Handle 400 or 403 (e.g., malformed or blocked token)
+    if (error.response?.status === 400 || error.response?.status === 403) {
+      const dispatch = useAppDispatch();
+      console.warn("Bad request or forbidden – Logging out");
+      dispatch(logOut());
+      return Promise.reject(error);
+    }
+
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url.includes(API_URL.REFRESH_TOKENS)
+      !EXCLUDED_URLS.includes(originalRequest.url)
     ) {
       originalRequest._retry = true;
 
@@ -32,8 +52,13 @@ API.interceptors.response.use(
         await API.post(API_URL.REFRESH_TOKENS, {}, { withCredentials: true }); // assumes refreshToken is in cookies
         return API(originalRequest); // retry original request
       } catch (refreshError) {
+        // const navigate = useNavigate();
+        const dispatch = useAppDispatch();
+
         console.error("Refresh token failed", refreshError);
-        window.location.href = ROUTES.LOGIN; // or dispatch logout
+        dispatch(logOut());
+        // navigate(ROUTES.LOGIN);
+        window.location.href = ROUTES.LOGIN;
         return Promise.reject(refreshError);
       }
     }

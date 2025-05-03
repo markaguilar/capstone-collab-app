@@ -1,35 +1,44 @@
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-
-import { Label } from "@/components/ui/label.tsx";
-import { Input } from "@/components/ui/input.tsx";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group.tsx";
-import { Button } from "@/components/ui/button.tsx";
-
-import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
-import { selectSwitchLogin } from "@/features/login/loginSlice";
-
-import { login, signUp } from "@/features/auth/authSlice.ts";
 import { useNavigate } from "react-router";
 
-type Inputs = {
-  name: string;
-  username: string;
-  role: string;
-  email: string;
-  password: string;
-};
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
+
+import { useAppDispatch, useAppSelector } from "@/features/hooks";
+import { selectSwitchLogin } from "@/features/global/globalSlice";
+import { login, signUp } from "@/features/auth/authSlice";
+
+import { LoginRegisterInputs } from "@/types/authTypes";
+import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox.tsx";
 
 const LoginForm = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const isLogin = useAppSelector(selectSwitchLogin);
 
-  const { register, control, handleSubmit } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+  const { register, control, handleSubmit } = useForm<LoginRegisterInputs>({
+    defaultValues: {
+      rememberMe: false,
+    },
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const onSubmit: SubmitHandler<LoginRegisterInputs> = async (data) => {
     console.log(data);
     if (!isLogin) {
-      dispatch(signUp(data));
+      const signUpResult = await dispatch(signUp(data));
+      if (signUp.fulfilled.match(signUpResult)) {
+        // Navigate to home only if login was successful
+        navigate("/");
+      } else {
+        console.error("Signup failed:", signUpResult.payload);
+      }
     } else {
+      // console.log("login", data);
       const resultAction = await dispatch(login(data));
 
       if (login.fulfilled.match(resultAction)) {
@@ -118,6 +127,7 @@ const LoginForm = () => {
           className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition"
           placeholder="your@email.com"
           required
+          autoComplete="username"
         />
       </div>
 
@@ -128,24 +138,43 @@ const LoginForm = () => {
         >
           Password
         </Label>
-        <Input
-          type="password"
-          id="password"
-          {...register("password")}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition"
-          placeholder="••••••••"
-          required
-        />
+        <div className="relative">
+          <Input
+            type={showPassword ? "text" : "password"}
+            id="password"
+            {...register("password")}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition"
+            placeholder="••••••••"
+            required
+            autoComplete="current-password"
+          />
+          <span
+            className="absolute flex items-center inset-y-0 right-3 cursor-pointer"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? (
+              <i className="fas fa-eye-slash text-gray-700 text-lg"></i>
+            ) : (
+              <i className="fas fa-eye text-gray-700 text-lg"></i>
+            )}
+          </span>
+        </div>
       </div>
 
       {isLogin && (
         <div className="flex items-center justify-between mb-6">
           <label className="flex items-center">
-            <input
-              type="checkbox"
-              className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
+            <Controller
+              name="rememberMe"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              )}
             />
-            <span className="ml-2 text-sm text-gray-600">Remember me</span>
+            <span className="ml-2 text-sm text-gray-600 mb-0">Remember me</span>
           </label>
           <a href="#" className="text-sm text-purple-600 hover:text-purple-700">
             Forgot password?

@@ -1,43 +1,23 @@
 import { AxiosError } from "axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import Cookies from "js-cookie";
 
-import API from "@/lib/axiosInstance.ts";
-import { API_URL } from "@/utils/constant.ts";
-import { RootState } from "@/features/store.ts";
+import API from "@/lib/axiosInstance";
+import { API_URL } from "@/utils/constant";
+import { RootState } from "@/features/store";
 
-interface RegisterPayload {
-  name: string;
-  username: string;
-  role: string;
-  email: string;
-  password: string;
-}
-
-interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-interface AuthState {
-  isLoggedIn: boolean;
-  isLoading: boolean;
-  user: object;
-  isAuthenticated: boolean;
-  status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
-}
+import { AuthState, LoginPayload, RegisterPayload } from "@/types/authTypes";
 
 const initialState: AuthState = {
-  isLoggedIn: false,
   isLoading: false,
-  user: {},
+  user: null,
   isAuthenticated: false,
   status: "idle",
   error: "",
 };
 
 export const signUp = createAsyncThunk(
-  "auth/sinup",
+  "auth/signup",
   async (payload: RegisterPayload, thunkAPI) => {
     try {
       const res = await API.post(API_URL.AUTH_REGISTER, payload);
@@ -84,7 +64,17 @@ export const me = createAsyncThunk("auth/me", async (_, thunkAPI) => {
 export const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    logOut: (state) => {
+      Cookies.remove("accessToken");
+      Cookies.remove("refreshToken");
+      state.isAuthenticated = false;
+      state.user = null;
+      state.status = "idle";
+      state.error = null;
+      console.log("logout");
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(signUp.pending, (state) => {
       state.isLoading = true;
@@ -101,10 +91,12 @@ export const authSlice = createSlice({
     builder.addCase(login.fulfilled, (state) => {
       state.isLoading = false;
     });
-    builder.addCase(login.rejected, (state) => {
+    builder.addCase(login.rejected, (state, action) => {
+      state.error = action.payload;
       state.isLoading = false;
     });
     builder.addCase(me.pending, (state) => {
+      state.isAuthenticated = false;
       state.isLoading = true;
       state.status = "loading";
     });
@@ -116,15 +108,18 @@ export const authSlice = createSlice({
     });
     builder.addCase(me.rejected, (state) => {
       state.isLoading = false;
-      state.user = {};
+      state.user = null;
       state.isAuthenticated = false;
       state.status = "failed";
     });
   },
 });
 
+export const { logOut } = authSlice.actions;
+
 export const selectIsAuthenticated = (state: RootState) =>
   state.auth.isAuthenticated;
 export const selectAuthStatus = (state: RootState) => state.auth.status;
+export const selectAuthError = (state: RootState) => state.auth.error;
 
 export default authSlice.reducer;

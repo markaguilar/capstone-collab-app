@@ -14,6 +14,7 @@ import Messages from "@/views/Messages.tsx";
 
 import { paths } from "@/routes/Paths.ts";
 import ProtectedRoute from "@/routes/ProtectedRoute.tsx";
+import { ROUTES } from "@/utils/constant.ts";
 
 const RoutesConfig = [
   {
@@ -69,7 +70,7 @@ const RoutesConfig = [
       // Optional: redirect unknown routes
       {
         path: "*",
-        element: <Navigate to="/" replace />,
+        element: <Navigate to={ROUTES.HOME} replace />,
       },
     ],
   },

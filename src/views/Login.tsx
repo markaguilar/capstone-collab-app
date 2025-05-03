@@ -2,11 +2,13 @@ import { Button } from "@/components/ui/button.tsx";
 import LoginForm from "@/components/forms/LoginForm.tsx";
 
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
-import { selectSwitchLogin, switchLogin } from "@/features/login/loginSlice.ts";
+import { selectSwitchLogin, switchLogin } from "@/features/global/globalSlice";
+import { selectAuthError } from "@/features/auth/authSlice.ts";
 
 const Login = () => {
   const dispatch = useAppDispatch();
   const isLogin = useAppSelector(selectSwitchLogin);
+  const error = useAppSelector(selectAuthError);
 
   const handleSwitchLogin = (value: string) => {
     dispatch(switchLogin(value));
@@ -58,11 +60,11 @@ const Login = () => {
             {isLogin ? "Login to your account" : "Create a new account"}
           </h2>
 
-          {/*  {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error && (
+            <div className="bg-red-100 text-red-700 px-4 py-3 rounded-md mb-4">
               {error}
             </div>
-          )}*/}
+          )}
 
           <LoginForm />
 

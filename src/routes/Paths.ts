@@ -1,21 +1,23 @@
+import { ROUTES } from "@/utils/constant.ts";
+
 export const paths = {
   auth: {
-    login: "/login",
-    register: "/register",
+    login: ROUTES.LOGIN,
+    register: ROUTES.REGISTER,
   },
   home: {
-    root: "/",
+    root: ROUTES.HOME,
   },
   projects: {
-    root: "/projects",
+    root: ROUTES.PROJECTS,
   },
   myProjects: {
-    root: "/my-projects",
+    root: ROUTES.MY_PROJECTS,
   },
   myProposals: {
-    root: "/my-proposals",
+    root: ROUTES.MY_PROPOSALS,
   },
   messages: {
-    root: "/messages",
+    root: ROUTES.MESSAGES,
   },
 };
