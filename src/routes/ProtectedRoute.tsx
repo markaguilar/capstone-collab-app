@@ -1,13 +1,16 @@
 import React, { useEffect } from "react";
 import { Navigate } from "react-router";
 
+import SkeletonLoading from "@/components/SkeletonLoading";
+
 import {
   me,
   selectAuthStatus,
   selectIsAuthenticated,
-} from "@/features/auth/authSlice.ts";
-import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
-import { ROUTES } from "@/utils/constant.ts";
+} from "@/features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "@/features/hooks";
+
+import { ROUTES } from "@/utils/constant";
 
 interface Props {
   children: React.ReactNode;
@@ -25,7 +28,7 @@ const ProtectedRoute = ({ children }: Props) => {
   }, [status, dispatch]);
 
   if (status === "loading" || status === "idle") {
-    return <div>Loading...</div>; // or a spinner component
+    return <SkeletonLoading />;
   }
 
   if (!isAuthenticated) {

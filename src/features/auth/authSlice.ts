@@ -123,12 +123,11 @@ export const authSlice = createSlice({
       state.isAuthenticated = true;
       state.status = "succeeded";
     });
-    builder.addCase(me.rejected, (state, action) => {
+    builder.addCase(me.rejected, (state) => {
       state.isLoading = false;
       state.user = null;
       state.isAuthenticated = false;
       state.status = "failed";
-      state.error = action.payload as string;
     });
   },
 });

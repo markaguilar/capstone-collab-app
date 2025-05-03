@@ -10,11 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import ErrorMessages from "@/components/ErrorMessages";
 
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
-import {
-  login,
-  selectIsLoading,
-  selectIsLoginMode,
-} from "@/features/auth/authSlice";
+import { login, selectIsLoading } from "@/features/auth/authSlice";
 
 import { loginSchemaValidation } from "@/validation/authSchemaValidation";
 
@@ -25,7 +21,6 @@ import { LoginInputs } from "@/types/authTypes";
 const LoginForm = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const isLoginMode = useAppSelector(selectIsLoginMode);
   const isLoading = useAppSelector(selectIsLoading);
 
   const {
@@ -46,36 +41,12 @@ const LoginForm = () => {
     const result = await dispatch(login(data));
 
     const isSuccess = login.fulfilled.match(result);
-
     if (isSuccess) {
       navigate(ROUTES.HOME);
     } else {
-      console.error(
-        `${isLoginMode ? "Login" : "Signup"} failed:`,
-        result.payload,
-      );
+      console.error(`Login failed:`, result.payload);
       // Optional: Show error via toast or UI — already in state.auth.error
     }
-
-    /*   if (!isLoginMode) {
-      const signUpResult = await dispatch(signUp(data));
-      if (signUp.fulfilled.match(signUpResult)) {
-        // Navigate home only if login was successful
-        navigate(ROUTES.HOME);
-      } else {
-        console.error("Signup failed:", signUpResult.payload);
-      }
-    } else {
-      const resultAction = await dispatch(login(data));
-
-      if (login.fulfilled.match(resultAction)) {
-        // Navigate home only if login was successful
-        navigate(ROUTES.HOME);
-      } else {
-        // Optional: show error feedback
-        console.error("Login failed:", resultAction.payload);
-      }
-    }*/
   };
 
   return (
