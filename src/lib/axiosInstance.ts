@@ -4,7 +4,7 @@ import { API_BASE_URL, API_URL, ROUTES } from "@/utils/constant";
 
 import { logOut } from "@/features/auth/authSlice";
 
-import { store } from "@/features/store";
+import { useAppDispatch } from "@/features/hooks.ts";
 
 const API = axios.create({
   baseURL: `${API_BASE_URL}/v1`, // e.g., http://localhost:5000/v1
@@ -30,12 +30,14 @@ API.interceptors.request.use(
 API.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // redux
+    const dispatch = useAppDispatch();
     const originalRequest = error.config;
 
     // Handle 400 or 403 (e.g., malformed or blocked token)
     if (error.response?.status === 400 || error.response?.status === 403) {
       console.warn("Bad request or forbidden – Logging out");
-      store.dispatch(logOut());
+      dispatch(logOut());
       return Promise.reject(error);
     }
 
@@ -51,7 +53,7 @@ API.interceptors.response.use(
         return API(originalRequest); // retry original request
       } catch (refreshError) {
         console.error("Refresh token failed", refreshError);
-        store.dispatch(logOut());
+        dispatch(logOut());
         window.location.href = ROUTES.LOGIN;
         return Promise.reject(refreshError);
       }

@@ -1,5 +1,9 @@
 import { AxiosError } from "axios";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
 
 import API from "@/lib/axiosInstance";
 import { API_URL } from "@/utils/constant";
@@ -13,6 +17,7 @@ const initialState: AuthState = {
   isAuthenticated: false,
   status: "idle",
   error: null,
+  isLoginMode: true,
 };
 
 export const signUp = createAsyncThunk(
@@ -70,6 +75,10 @@ export const authSlice = createSlice({
       state.status = "idle";
       state.error = null;
     },
+    setAuthMode: (state, action: PayloadAction<string>) => {
+      state.isLoginMode = action.payload == "login";
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(signUp.pending, (state) => {
@@ -122,11 +131,13 @@ export const authSlice = createSlice({
   },
 });
 
-export const { logOut } = authSlice.actions;
+export const { logOut, setAuthMode } = authSlice.actions;
 
+export const selectIsLoading = (state: RootState) => state.auth.isLoading;
 export const selectIsAuthenticated = (state: RootState) =>
   state.auth.isAuthenticated;
 export const selectAuthStatus = (state: RootState) => state.auth.status;
 export const selectAuthError = (state: RootState) => state.auth.error;
+export const selectIsLoginMode = (state: RootState) => state.auth.isLoginMode;
 
 export default authSlice.reducer;

@@ -1,30 +1,32 @@
 import { useState } from "react";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { LoaderCircle } from "lucide-react";
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import ErrorMessages from "@/components/ErrorMessages";
+import { Button } from "@/components/ui/button";
 
-import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import {
-  login,
   selectIsLoading,
   selectIsLoginMode,
+  signUp,
 } from "@/features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "@/features/hooks";
 
-import { loginSchemaValidation } from "@/validation/authSchemaValidation";
+import { registerSchemaValidation } from "@/validation/authSchemaValidation";
 
 import { ROUTES } from "@/utils/constant";
 
-import { LoginInputs } from "@/types/authTypes";
+import { RegisterInputs } from "@/types/authTypes";
 
-const LoginForm = () => {
-  const navigate = useNavigate();
+const RegisterForm = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   const isLoginMode = useAppSelector(selectIsLoginMode);
   const isLoading = useAppSelector(selectIsLoading);
 
@@ -33,19 +35,16 @@ const LoginForm = () => {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginInputs>({
-    resolver: yupResolver(loginSchemaValidation),
-    defaultValues: {
-      rememberMe: false,
-    },
+  } = useForm<RegisterInputs>({
+    resolver: yupResolver(registerSchemaValidation),
   });
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
-    const result = await dispatch(login(data));
+  const onSubmit: SubmitHandler<RegisterInputs> = async (data) => {
+    const result = await dispatch(signUp(data));
 
-    const isSuccess = login.fulfilled.match(result);
+    const isSuccess = signUp.fulfilled.match(result);
 
     if (isSuccess) {
       navigate(ROUTES.HOME);
@@ -80,6 +79,73 @@ const LoginForm = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
+      <div className="mb-4">
+        <Label htmlFor="name">Full Name</Label>
+        <Input
+          type="text"
+          id="name"
+          {...register("name")}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition"
+          placeholder="ex: johndoe"
+          required
+        />
+        {errors.name && <ErrorMessages messages={errors.name.message} />}
+      </div>
+      <div className="mb-4">
+        <Label htmlFor="username">Username</Label>
+        <Input
+          type="text"
+          id="username"
+          {...register("username")}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition"
+          placeholder="ex: johndoe123"
+          required
+          autoComplete="username"
+        />
+        {errors.username && (
+          <ErrorMessages messages={errors.username.message} />
+        )}
+      </div>
+      <div className="mb-4">
+        <Label className="block text-sm font-medium text-gray-700 mb-2">
+          I am a
+        </Label>
+        <Controller
+          name="role"
+          control={control}
+          defaultValue="student"
+          render={({ field }) => (
+            <RadioGroup
+              onValueChange={field.onChange}
+              value={field.value}
+              className="flex space-x-4"
+            >
+              <div className="flex items-center">
+                <RadioGroupItem
+                  id="r1"
+                  value="student"
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500"
+                />
+                <Label htmlFor="r1" className="ml-2 mb-0">
+                  Student
+                </Label>
+              </div>
+              <div className="flex items-center">
+                <RadioGroupItem
+                  id="r2"
+                  value="developer"
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500"
+                />
+                <Label htmlFor="r2" className="ml-2 mb-0">
+                  Developer
+                </Label>
+              </div>
+            </RadioGroup>
+          )}
+        />
+        {errors.role && <ErrorMessages messages={errors.role.message} />}
+      </div>
+
       <div className="mb-4">
         <Label htmlFor="email">Email Address</Label>
         <Input
@@ -127,33 +193,18 @@ const LoginForm = () => {
         )}
       </div>
 
-      <div className="flex items-center justify-between mb-6">
-        <label className="flex items-center">
-          <Controller
-            name="rememberMe"
-            control={control}
-            render={({ field }) => (
-              <Checkbox
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            )}
-          />
-          <span className="ml-2 text-sm text-gray-600 mb-0">Remember me</span>
-        </label>
-        <a href="#" className="text-sm text-purple-600 hover:text-purple-700">
-          Forgot password?
-        </a>
-      </div>
-
       <Button
         type="submit"
         className="w-full login-gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition tracking-wider lg:text-base"
       >
-        {isLoading ? `Logging in ...` : `Login`}
+        {isLoading ? (
+          <LoaderCircle className="animate-spin size-7" />
+        ) : (
+          `Create Account & Login`
+        )}
       </Button>
     </form>
   );
 };
 
-export default LoginForm;
+export default RegisterForm;

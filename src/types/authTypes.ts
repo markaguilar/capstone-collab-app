@@ -13,6 +13,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+  isLoginMode: boolean;
 }
 
 export interface LoginPayload {
@@ -28,11 +29,16 @@ export interface RegisterPayload {
   password: string;
 }
 
-export type LoginRegisterInputs = {
-  name: string;
-  username: string;
-  role: string;
+export type LoginInputs = {
   email: string;
   password: string;
-  rememberMe: boolean;
+  rememberMe?: boolean | undefined;
+};
+
+export type RegisterInputs = {
+  role: string;
+  name: string;
+  username: string;
+  email: string;
+  password: string;
 };
