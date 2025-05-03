@@ -3,25 +3,25 @@ import { RootState } from "@/features/store.ts";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 interface GlobalState {
-  switch: boolean;
+  isLoginMode: boolean;
 }
 
 const initialState: GlobalState = {
-  switch: true,
+  isLoginMode: true,
 };
 
 export const globalSlice = createSlice({
   name: "global",
   initialState,
   reducers: {
-    switchLogin: (state, action: PayloadAction<string>) => {
-      state.switch = action.payload == "login";
+    setAuthMode: (state, action: PayloadAction<string>) => {
+      state.isLoginMode = action.payload == "login";
     },
   },
 });
 
-export const { switchLogin } = globalSlice.actions;
+export const { setAuthMode } = globalSlice.actions;
 
-export const selectSwitchLogin = (state: RootState) => state.global.switch;
+export const selectIsLoginMode = (state: RootState) => state.global.isLoginMode;
 
 export default globalSlice.reducer;

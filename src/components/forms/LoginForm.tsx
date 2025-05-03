@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
-import { selectSwitchLogin } from "@/features/global/globalSlice";
+import { selectIsLoginMode } from "@/features/global/globalSlice";
 import { login, signUp } from "@/features/auth/authSlice";
 
 import { LoginRegisterInputs } from "@/types/authTypes";
@@ -17,7 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox.tsx";
 const LoginForm = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const isLogin = useAppSelector(selectSwitchLogin);
+  const isLoginMode = useAppSelector(selectIsLoginMode);
 
   const { register, control, handleSubmit } = useForm<LoginRegisterInputs>({
     defaultValues: {
@@ -29,10 +29,10 @@ const LoginForm = () => {
 
   const onSubmit: SubmitHandler<LoginRegisterInputs> = async (data) => {
     console.log(data);
-    if (!isLogin) {
+    if (!isLoginMode) {
       const signUpResult = await dispatch(signUp(data));
       if (signUp.fulfilled.match(signUpResult)) {
-        // Navigate to home only if login was successful
+        // Navigate home only if login was successful
         navigate("/");
       } else {
         console.error("Signup failed:", signUpResult.payload);
@@ -42,7 +42,7 @@ const LoginForm = () => {
       const resultAction = await dispatch(login(data));
 
       if (login.fulfilled.match(resultAction)) {
-        // Navigate to home only if login was successful
+        // Navigate home only if login was successful
         navigate("/");
       } else {
         // Optional: show error feedback
@@ -53,7 +53,7 @@ const LoginForm = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      {!isLogin && (
+      {!isLoginMode && (
         <>
           <div className="mb-4">
             <Label htmlFor="name">Full Name</Label>
@@ -161,7 +161,7 @@ const LoginForm = () => {
         </div>
       </div>
 
-      {isLogin && (
+      {isLoginMode && (
         <div className="flex items-center justify-between mb-6">
           <label className="flex items-center">
             <Controller
@@ -186,7 +186,7 @@ const LoginForm = () => {
         type="submit"
         className="w-full login-gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition tracking-wider lg:text-base"
       >
-        {isLogin ? "Login" : "Create Account & Login"}
+        {isLoginMode ? "Login" : "Create Account & Login"}
       </Button>
     </form>
   );

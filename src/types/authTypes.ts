@@ -34,5 +34,5 @@ export type LoginRegisterInputs = {
   role: string;
   email: string;
   password: string;
-  rememberMe: any;
+  rememberMe: boolean;
 };

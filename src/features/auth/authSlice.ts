@@ -1,6 +1,5 @@
 import { AxiosError } from "axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import Cookies from "js-cookie";
 
 import API from "@/lib/axiosInstance";
 import { API_URL } from "@/utils/constant";
@@ -13,7 +12,7 @@ const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
   status: "idle",
-  error: "",
+  error: null,
 };
 
 export const signUp = createAsyncThunk(
@@ -66,13 +65,10 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     logOut: (state) => {
-      Cookies.remove("accessToken");
-      Cookies.remove("refreshToken");
       state.isAuthenticated = false;
       state.user = null;
       state.status = "idle";
       state.error = null;
-      console.log("logout");
     },
   },
   extraReducers: (builder) => {
@@ -80,20 +76,31 @@ export const authSlice = createSlice({
       state.isLoading = true;
     });
     builder.addCase(signUp.fulfilled, (state) => {
+      state.isAuthenticated = true;
+      state.status = "succeeded";
+      state.error = null;
       state.isLoading = false;
     });
-    builder.addCase(signUp.rejected, (state) => {
+    builder.addCase(signUp.rejected, (state, action) => {
+      state.error = action.payload as string;
+      state.status = "failed";
       state.isLoading = false;
     });
     builder.addCase(login.pending, (state) => {
       state.isLoading = true;
     });
-    builder.addCase(login.fulfilled, (state) => {
+    builder.addCase(login.fulfilled, (state, action) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
+      state.status = "succeeded";
+      state.error = null;
       state.isLoading = false;
     });
     builder.addCase(login.rejected, (state, action) => {
-      state.error = action.payload;
+      state.error = action.payload as string;
       state.isLoading = false;
+      state.status = "failed";
+      state.isAuthenticated = false;
     });
     builder.addCase(me.pending, (state) => {
       state.isAuthenticated = false;

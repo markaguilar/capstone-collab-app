@@ -2,16 +2,16 @@ import { Button } from "@/components/ui/button.tsx";
 import LoginForm from "@/components/forms/LoginForm.tsx";
 
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
-import { selectSwitchLogin, switchLogin } from "@/features/global/globalSlice";
+import { selectIsLoginMode, setAuthMode } from "@/features/global/globalSlice";
 import { selectAuthError } from "@/features/auth/authSlice.ts";
 
 const Login = () => {
   const dispatch = useAppDispatch();
-  const isLogin = useAppSelector(selectSwitchLogin);
+  const isLogin = useAppSelector(selectIsLoginMode);
   const error = useAppSelector(selectAuthError);
 
   const handleSwitchLogin = (value: string) => {
-    dispatch(switchLogin(value));
+    dispatch(setAuthMode(value));
   };
 
   return (

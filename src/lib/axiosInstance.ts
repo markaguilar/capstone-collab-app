@@ -1,11 +1,10 @@
 import axios from "axios";
-// import { useNavigate } from "react-router";
 
 import { API_BASE_URL, API_URL, ROUTES } from "@/utils/constant";
 
 import { logOut } from "@/features/auth/authSlice";
 
-import { useAppDispatch } from "@/features/hooks";
+import { store } from "@/features/store";
 
 const API = axios.create({
   baseURL: `${API_BASE_URL}/v1`, // e.g., http://localhost:5000/v1
@@ -27,7 +26,7 @@ API.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// Response interceptor to handle 401 and refresh token logic
+// Response interceptor to handle 401 and refresh token logics
 API.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -35,9 +34,8 @@ API.interceptors.response.use(
 
     // Handle 400 or 403 (e.g., malformed or blocked token)
     if (error.response?.status === 400 || error.response?.status === 403) {
-      const dispatch = useAppDispatch();
       console.warn("Bad request or forbidden – Logging out");
-      dispatch(logOut());
+      store.dispatch(logOut());
       return Promise.reject(error);
     }
 
@@ -52,12 +50,8 @@ API.interceptors.response.use(
         await API.post(API_URL.REFRESH_TOKENS, {}, { withCredentials: true }); // assumes refreshToken is in cookies
         return API(originalRequest); // retry original request
       } catch (refreshError) {
-        // const navigate = useNavigate();
-        const dispatch = useAppDispatch();
-
         console.error("Refresh token failed", refreshError);
-        dispatch(logOut());
-        // navigate(ROUTES.LOGIN);
+        store.dispatch(logOut());
         window.location.href = ROUTES.LOGIN;
         return Promise.reject(refreshError);
       }
