@@ -1,12 +1,16 @@
 import { useState } from "react";
-import {NavLink, useNavigate} from "react-router";
+import { NavLink, useNavigate } from "react-router";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCode, faBell } from "@fortawesome/free-solid-svg-icons";
-import { Button } from "@/components/ui/button.tsx";
+import { Button } from "@/components/ui/button";
+import { useAppDispatch } from "@/features/hooks";
+import { logOut } from "@/features/auth/authSlice";
+import Cookies from "js-cookie";
 
 const Header = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const [currentUser, setCurrentUser] = useState({
     id: 1,
@@ -39,11 +43,17 @@ const Header = () => {
   const handleLogout = () => {
     setCurrentUser(null);
     setActiveTab("home");
+    dispatch(logOut());
+    console.log("logout");
+    Cookies.remove("accessToken");
+    Cookies.remove("refreshToken");
   };
 
   const navLinkClass = ({ isActive }) =>
     `px-3 py-1 rounded-full transition duration-200 ${
-      isActive ? "bg-white text-[#7c3aed]" : " text-white hover:bg-white hover:text-[#7c3aed]"
+      isActive
+        ? "bg-white text-[#7c3aed]"
+        : " text-white hover:bg-white hover:text-[#7c3aed]"
     }`;
 
   return (
@@ -112,7 +122,7 @@ const Header = () => {
             <>
               <button
                 onClick={() => {
-                  navigate('/login')
+                  navigate("/login");
                 }}
                 className="px-3 py-1 border border-white text-white rounded-full transition duration-300 hover:-translate-y-0.5 cursor-pointer"
               >
@@ -120,7 +130,7 @@ const Header = () => {
               </button>
               <button
                 onClick={() => {
-                  navigate('/sign-up')
+                  navigate("/sign-up");
                 }}
                 className="px-3 py-1 border border-white text-white rounded-full transition duration-300 hover:-translate-y-0.5 cursor-pointer"
               >

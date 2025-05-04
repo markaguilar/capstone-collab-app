@@ -1,84 +1,56 @@
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useState } from "react";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
+import { yupResolver } from "@hookform/resolvers/yup";
 
-import { Label } from "@/components/ui/label.tsx";
-import { Input } from "@/components/ui/input.tsx";
-import { useAppSelector } from "@/lib/features/hooks.ts";
-import { selectSwitchLogin } from "@/lib/features/login/loginSlice.ts";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group.tsx";
-import { Button } from "@/components/ui/button.tsx";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import ErrorMessages from "@/components/ErrorMessages";
 
-type Inputs = {
-  name: string;
-  username: string;
-  role: string;
-  email: string;
-  password: string;
-};
+import { useAppDispatch, useAppSelector } from "@/features/hooks";
+import { login, selectIsLoading } from "@/features/auth/authSlice";
+
+import { loginSchemaValidation } from "@/validation/authSchemaValidation";
+
+import { ROUTES } from "@/utils/constant";
+
+import { LoginInputs } from "@/types/authTypes";
 
 const LoginForm = () => {
-  const isLogin = useAppSelector(selectSwitchLogin);
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const isLoading = useAppSelector(selectIsLoading);
 
-  const { register, handleSubmit } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginInputs>({
+    resolver: yupResolver(loginSchemaValidation),
+    defaultValues: {
+      rememberMe: false,
+    },
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
+    const result = await dispatch(login(data));
+
+    const isSuccess = login.fulfilled.match(result);
+    if (isSuccess) {
+      navigate(ROUTES.HOME);
+    } else {
+      console.error(`Login failed:`, result.payload);
+      // Optional: Show error via toast or UI — already in state.auth.error
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      {!isLogin && (
-        <>
-          <div className="mb-4">
-            <Label htmlFor="name">Full Name</Label>
-            <Input
-              type="text"
-              id="name"
-              {...register("name")}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition"
-              placeholder="John Doe"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              type="text"
-              id="username"
-              {...register("username")}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition"
-              placeholder="johndoe123"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <Label className="block text-sm font-medium text-gray-700 mb-2">
-              I am a
-            </Label>
-            <RadioGroup className="flex space-x-4">
-              <div className="flex items-center">
-                <RadioGroupItem
-                  id="r1"
-                  value="student"
-                  {...register("role")}
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500"
-                />
-                <Label htmlFor="r1" className="ml-2 mb-0">
-                  Student
-                </Label>
-              </div>
-              <div className="flex items-center">
-                <RadioGroupItem
-                  id="r2"
-                  value="developer"
-                  {...register("role")}
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500"
-                />
-                <Label htmlFor="r2" className="ml-2 mb-0">
-                  Developer
-                </Label>
-              </div>
-            </RadioGroup>
-          </div>
-        </>
-      )}
-
       <div className="mb-4">
         <Label htmlFor="email">Email Address</Label>
         <Input
@@ -88,7 +60,9 @@ const LoginForm = () => {
           className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition"
           placeholder="your@email.com"
           required
+          autoComplete="username"
         />
+        {errors.email && <ErrorMessages messages={errors.email.message} />}
       </div>
 
       <div className="mb-6">
@@ -98,36 +72,56 @@ const LoginForm = () => {
         >
           Password
         </Label>
-        <Input
-          type="password"
-          id="password"
-          {...register("password")}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition"
-          placeholder="••••••••"
-          required
-        />
+        <div className="relative">
+          <Input
+            type={showPassword ? "text" : "password"}
+            id="password"
+            {...register("password")}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition"
+            placeholder="••••••••"
+            required
+            autoComplete="current-password"
+          />
+          <span
+            className="absolute flex items-center inset-y-0 right-3 cursor-pointer"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? (
+              <i className="fas fa-eye-slash text-gray-700 text-lg"></i>
+            ) : (
+              <i className="fas fa-eye text-gray-700 text-lg"></i>
+            )}
+          </span>
+        </div>
+        {errors.password && (
+          <ErrorMessages messages={errors.password.message} />
+        )}
       </div>
 
-      {isLogin && (
-        <div className="flex items-center justify-between mb-6">
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
-            />
-            <span className="ml-2 text-sm text-gray-600">Remember me</span>
-          </label>
-          <a href="#" className="text-sm text-purple-600 hover:text-purple-700">
-            Forgot password?
-          </a>
-        </div>
-      )}
+      <div className="flex items-center justify-between mb-6">
+        <label className="flex items-center">
+          <Controller
+            name="rememberMe"
+            control={control}
+            render={({ field }) => (
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            )}
+          />
+          <span className="ml-2 text-sm text-gray-600 mb-0">Remember me</span>
+        </label>
+        <a href="#" className="text-sm text-purple-600 hover:text-purple-700">
+          Forgot password?
+        </a>
+      </div>
 
       <Button
         type="submit"
         className="w-full login-gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition tracking-wider lg:text-base"
       >
-        {isLogin ? "Login" : "Create Account"}
+        {isLoading ? `Logging in ...` : `Login`}
       </Button>
     </form>
   );

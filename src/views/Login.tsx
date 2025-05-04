@@ -1,18 +1,18 @@
 import { Button } from "@/components/ui/button.tsx";
 import LoginForm from "@/components/forms/LoginForm.tsx";
+import RegisterForm from "@/components/forms/RegisterForm";
 
-import { useAppDispatch, useAppSelector } from "@/lib/features/hooks.ts";
-import {
-  selectSwitchLogin,
-  switchLogin,
-} from "@/lib/features/login/loginSlice.ts";
+import { useAppDispatch, useAppSelector } from "@/features/hooks";
+import { selectIsLoginMode, setAuthMode } from "@/features/auth/authSlice";
+import { selectAuthError } from "@/features/auth/authSlice";
 
 const Login = () => {
   const dispatch = useAppDispatch();
-  const isLogin = useAppSelector(selectSwitchLogin);
+  const isLoginMode = useAppSelector(selectIsLoginMode);
+  const error = useAppSelector(selectAuthError);
 
   const handleSwitchLogin = (value: string) => {
-    dispatch(switchLogin(value));
+    dispatch(setAuthMode(value));
   };
 
   return (
@@ -25,10 +25,10 @@ const Login = () => {
             <h1 className="text-3xl font-bold">DevConnect</h1>
           </div>
           <h2 className="text-2xl font-semibold mb-4">
-            {isLogin ? "Welcome Back!" : "Join Our Community"}
+            {isLoginMode ? "Welcome Back!" : "Join Our Community"}
           </h2>
           <p className="mb-8">
-            {isLogin
+            {isLoginMode
               ? "Connect with fellow students and developers to collaborate on projects, share knowledge, and grow together."
               : "Create your account to start collaborating on projects, finding mentors, and building your portfolio."}
           </p>
@@ -45,39 +45,42 @@ const Login = () => {
           <div className="flex mb-8 bg-gray-100 rounded-full p-1">
             <button
               onClick={() => handleSwitchLogin("login")}
-              className={`flex-1 py-2 px-4 rounded-full font-medium transition-all duration-300 ease-in-out  ${isLogin ? "login-toggle-active" : "text-gray-600"}`}
+              className={`flex-1 py-2 px-4 rounded-full font-medium transition-all duration-300 ease-in-out  ${isLoginMode ? "login-toggle-active" : "text-gray-600"}`}
             >
               Login
             </button>
             <button
               onClick={() => handleSwitchLogin("sign-up")}
-              className={`flex-1 py-2 px-4 rounded-full font-medium transition-all duration-300 ease-in-out  ${!isLogin ? "login-toggle-active" : "text-gray-600"}`}
+              className={`flex-1 py-2 px-4 rounded-full font-medium transition-all duration-300 ease-in-out  ${!isLoginMode ? "login-toggle-active" : "text-gray-600"}`}
             >
-              Sign Up
+              Register
             </button>
           </div>
 
           <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            {isLogin ? "Login to your account" : "Create a new account"}
+            {isLoginMode ? "Login to your account" : "Create a new account"}
           </h2>
 
-          {/*  {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error && (
+            <div className="bg-red-100 text-red-700 px-4 py-3 rounded-md mb-4">
               {error}
             </div>
-          )}*/}
-
-          <LoginForm />
+          )}
+          {isLoginMode ? <LoginForm /> : <RegisterForm />}
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+              {isLoginMode
+                ? "Don't have an account?"
+                : "Already have an account?"}{" "}
               <Button
                 variant="link"
-                onClick={() => handleSwitchLogin(isLogin ? "sign-up" : "login")}
+                onClick={() =>
+                  handleSwitchLogin(isLoginMode ? "sign-up" : "login")
+                }
                 className="p-0 text-purple-600 font-medium hover:text-purple-700"
               >
-                {isLogin ? "Sign up here" : "Login here"}
+                {isLoginMode ? "Register here" : "Login here"}
               </Button>
             </p>
           </div>
